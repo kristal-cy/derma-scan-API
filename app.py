@@ -14,6 +14,13 @@ CORS(app)
 MODEL_PATH = "model_kulit.h5"
 model = load_model(MODEL_PATH)
 
+try:
+    model = load_model(MODEL_PATH)
+    print("Model loaded successfully")
+except Exception as e:
+    print(f"Error loading model: {e}")
+    sys.exit(1)  # Hentikan program jika model gagal load
+
 # Label sesuai urutan output model
 class_names = ['jerawat_parah', 'berminyak', 'jerawat_sedang', 'kering', 'jerawat_ringan']
 
