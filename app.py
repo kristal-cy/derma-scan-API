@@ -7,25 +7,44 @@ import os
 import sys
 from werkzeug.utils import secure_filename
 from PIL import UnidentifiedImageError
+import h5py  # Untuk cek validitas file .h5
 
 app = Flask(__name__)
 CORS(app)
 
-# Load model
+# Konfigurasi path model
 MODEL_PATH = "model_kulit.h5"
-model = load_model(MODEL_PATH)
 
+# Fungsi untuk validasi file model
+def validate_model_file(filepath):
+    try:
+        with h5py.File(filepath, "r"):
+            return True
+    except Exception as e:
+        print(f"❌ File model tidak valid: {e}")
+        return False
+
+# Cek apakah file model ada dan valid
+if not os.path.exists(MODEL_PATH):
+    print(f"❌ File model tidak ditemukan di path: {MODEL_PATH}")
+    sys.exit(1)
+
+if not validate_model_file(MODEL_PATH):
+    print("❌ File model corrupt atau bukan file HDF5 yang valid")
+    sys.exit(1)
+
+# Load model
 try:
     model = load_model(MODEL_PATH)
-    print("Model loaded successfully")
+    print("✅ Model berhasil dimuat")
 except Exception as e:
-    print(f"Error loading model: {e}")
-    sys.exit(1)  # Hentikan program jika model gagal load
+    print(f"❌ Gagal memuat model: {e}")
+    sys.exit(1)
 
 # Label sesuai urutan output model
 class_names = ['jerawat_parah', 'berminyak', 'jerawat_sedang', 'kering', 'jerawat_ringan']
 
-# List untuk menyimpan history prediksi (hanya di memori, tidak persistent)
+# List untuk menyimpan history prediksi (non-persistent)
 predictions_history = []
 
 @app.route('/', methods=['GET'])
@@ -76,7 +95,7 @@ def predict():
             "confidence": round(confidence * 100, 2)  # dalam persen
         }
 
-        # Simpan hasil prediksi ke history
+        # Simpan ke history
         predictions_history.append(result)
 
         return jsonify(result)
@@ -91,10 +110,8 @@ def predict():
 
 @app.route('/history', methods=['GET'])
 def history():
-    # Kembalikan semua hasil prediksi yang sudah dilakukan
     return jsonify(predictions_history)
 
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
