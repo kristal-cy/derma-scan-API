@@ -14,3 +14,4 @@ This project involves building a Convolutional Neural Network (CNN) model to det
 - OpenCV
 - NumPy, Pandas, Matplotlib
 
+![Screenshot 2025-05-25 194135](https://github.com/user-attachments/assets/df0342dc-20fc-4ac7-b765-e4767ab658d3)
