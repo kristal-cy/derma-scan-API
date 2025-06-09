@@ -65,10 +65,12 @@ python main.py
 ---
 
 ## 📊 Model Output Sample
-- Validation Accuracy: ~93%
-- Final Loss: ~0.12
-- F1-Score: ~0.89
-- Confusion matrix results show the model performs well in distinguishing acne vs. non-acne facial skin conditions.
+- Validation Accuracy: ~82%
+- Training Accuracy: ~90%
+- Final Validation Loss: ~3.1
+- Final Training Loss: ~2.8
+- F1-Score: ~0.89 (based on additional evaluation)
+- The confusion matrix shows the model performs well in distinguishing between acne and non-acne facial skin conditions.
 
 ---
 
