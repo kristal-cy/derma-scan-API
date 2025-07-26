@@ -14,39 +14,39 @@ CORS(app)
 MODEL_PATH = "final_model_skin_new.h5"
 model = load_model(MODEL_PATH)
 
-# Label sesuai urutan output model
-class_names = ['berjerawat', 'berminyak', 'dermatitis_perioral', 'kering', 'normal', 'penuaan', 'vitiligo']
+# Labels corresponding to the model output
+class_names = ['acne', 'oily', 'perioral_dermatitis', 'dry', 'normal', 'aging', 'vitiligo']
 
-# List untuk menyimpan history prediksi (hanya di memori, tidak persistent)
+# List to store prediction history (in-memory only, not persistent)
 predictions_history = []
 
 @app.route('/', methods=['GET'])
 def index():
-    return jsonify({"message": "✅ API Deteksi Kulit Siap Digunakan"}), 200
+    return jsonify({"message": "✅ Skin Detection API is ready"}), 200
 
 @app.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
-        return jsonify({"error": "⚠️ Tidak ada file yang dikirim"}), 400
+        return jsonify({"error": "⚠️ No file uploaded"}), 400
 
     file = request.files['file']
-    print(f"File diterima: {file.filename}")
+    print(f"File received: {file.filename}")
 
     if file.filename == '':
-        return jsonify({"error": "⚠️ Nama file kosong"}), 400
+        return jsonify({"error": "⚠️ File name is empty"}), 400
 
     try:
         filename = secure_filename(file.filename)
         os.makedirs("temp", exist_ok=True)
         filepath = os.path.join("temp", filename)
         file.save(filepath)
-        print(f"File disimpan di: {filepath}")
+        print(f"File saved to: {filepath}")
 
-        # Validasi gambar
+        # Validate image
         try:
             img = image.load_img(filepath, target_size=(224, 224))
         except UnidentifiedImageError:
-            return jsonify({"error": "❌ File bukan gambar yang valid"}), 400
+            return jsonify({"error": "❌ Uploaded file is not a valid image"}), 400
 
         # Preprocessing
         img_array = image.img_to_array(img)
@@ -55,35 +55,35 @@ def predict():
         # Prediction
         pred = model.predict(img_array)
         if len(pred[0]) != len(class_names):
-            return jsonify({"error": "❌ Jumlah output model tidak cocok dengan jumlah label"}), 500
+            return jsonify({"error": "❌ Model output count does not match the number of labels"}), 500
 
         class_idx = np.argmax(pred[0])
         label = class_names[class_idx]
         confidence = float(pred[0][class_idx])
 
-        print(f"Prediksi: {label} dengan confidence {confidence}")
+        print(f"Prediction: {label} with confidence {confidence}")
 
         result = {
             "label": label,
-            "confidence": round(confidence * 100, 2)  # dalam persen
+            "confidence": round(confidence * 100, 2)  # percentage
         }
 
-        # Simpan hasil prediksi ke history
+        # Save prediction result to history
         predictions_history.append(result)
 
         return jsonify(result)
 
     except Exception as e:
-        return jsonify({"error": f"❌ Terjadi kesalahan saat prediksi: {str(e)}"}), 500
+        return jsonify({"error": f"❌ Error during prediction: {str(e)}"}), 500
 
     finally:
         if os.path.exists(filepath):
             os.remove(filepath)
-            print(f"File {filepath} dihapus setelah prediksi")
+            print(f"File {filepath} deleted after prediction")
 
 @app.route('/history', methods=['GET'])
 def history():
-    # Kembalikan semua hasil prediksi yang sudah dilakukan
+    # Return all past predictions
     return jsonify(predictions_history)
 
 if __name__ == '__main__':
