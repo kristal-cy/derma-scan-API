@@ -1,3 +1,13 @@
+## 📌 Credits
+
+This CNN model for acne detection was originally cloned from an open-source repository and modified by me.  
+It is used for educational purposes only.  
+All rights belong to the original author.
+
+🔗 Original Source: KREES | Aditya Putra Sholahuddin https://github.com/KREESS  
+✏️ Modified by: Crystal Sabado
+
+
 # 🧠 CNN Face Acne Detector
 
 Automatic acne detection and classification on facial images using **Convolutional Neural Networks (CNN)** and **Deep Learning** technology. This project aims to assist early skin analysis and can be used as the foundation for AI-powered mobile or web applications.
